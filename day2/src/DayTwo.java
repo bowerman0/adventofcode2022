@@ -15,15 +15,15 @@ public class DayTwo {
                     case 'A':
                         switch (line.charAt(2)) {
                             case 'X':
-                                score += 1;
                                 score += 3;
                                 break;
                             case 'Y':
-                                score += 2;
-                                score += 6;
+                                score += 1;
+                                score += 3;
                                 break;
                             case 'Z':
-                                score += 3;
+                                score += 2;
+                                score += 6;
                                 break;
                             default:
                                 break;
@@ -49,15 +49,15 @@ public class DayTwo {
                     case 'C':
                         switch (line.charAt(2)) {
                             case 'X':
-                                score += 1;
-                                score += 6;
-                                break;
-                            case 'Y':
                                 score += 2;
                                 break;
+                            case 'Y':
+                                score += 3;
+                                score += 3;
+                                break;
                             case 'Z':
-                                score += 3;
-                                score += 3;
+                                score += 1;
+                                score += 6;
                                 break;
                             default:
                                 break;
