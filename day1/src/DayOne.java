@@ -1,29 +1,33 @@
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.PriorityQueue;
 
 public class DayOne {
 
 	public static void main(String[] args) {
-		System.out.println("max: " + read());
+		PriorityQueue<Integer> heap = read();
+		for (Integer cur = heap.poll(), level = 0; cur != null; cur = heap.poll(), ++level) {
+			System.out.println(level + ": " + cur);
+		}
 	}
 
 
-	private static int read() {
+	private static PriorityQueue<Integer> read() {
 		try(BufferedReader reader =
 					new BufferedReader(new FileReader("input.txt"))) {
-			int max = 0;
+			PriorityQueue<Integer> heap = new PriorityQueue<>();
 			for (String line = reader.readLine(); line != null; line = reader.readLine()) {
 				int carrying = 0;
 				for (; line != null && !line.isBlank() && !line.isEmpty(); line = reader.readLine()) {
 					carrying += Integer.parseInt(line);
 				}
-				max = Math.max(max, carrying);
+				heap.offer(carrying);
 			}
-			return max;
+			return heap;
 		} catch (IOException e) {
 			e.printStackTrace();
-			return 0;
+			return null;
 		}
   }
 }
