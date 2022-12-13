@@ -3,6 +3,9 @@ import java.io.FileReader;
 import java.io.IOException;
 
 public class Day6 {
+
+    public static final int MESSAGE_LENGTH = 14;
+
     public static void main(String[] args) {
         System.out.println("position: " + read());
     }
@@ -19,16 +22,16 @@ public class Day6 {
                 if (2 == counts[line.charAt(pos)]) {
                     ++duplicates;
                 }
-                if (4 <= pos) {
-                    int oldPos = pos - 4;
+                if (MESSAGE_LENGTH <= pos) {
+                    int oldPos = pos - MESSAGE_LENGTH;
                     --counts[line.charAt(oldPos)];
                     if (1 == counts[line.charAt(oldPos)]) {
                         --duplicates;
                     }
                 }
 
-                if (3 <= pos && 0 == duplicates) {
-                    System.out.println(line.substring(Math.max(pos - 3, 0),pos+1));
+                if (MESSAGE_LENGTH-1 <= pos && 0 == duplicates) {
+                    System.out.println(line.substring(Math.max(pos - (MESSAGE_LENGTH-1), 0),pos+1));
                     return pos + 1; // 1-indexed
                 }
             }
