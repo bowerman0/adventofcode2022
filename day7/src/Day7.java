@@ -84,33 +84,47 @@ public class Day7 {
             }
 
 
-//            int total =  - root.getSize();
-//            for (Directory d : root.getChildren()) {
-//                total += addToTotal(d);
-//            }
-//            return total;
-            return addToTotal(root);
+            //return addToTotal(root);
+            System.out.println("root size: " + root.getSize());
+            int freeSpace = 70_000_000 - root.getSize();
+            System.out.println("free     : " + freeSpace);
+            int target = 30_000_000 - freeSpace;
+            System.out.println("target   : " + target);
+            return findSmallest(root, target);
 
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    static private int addToTotal(Directory root) {
-        //System.out.println("location: " + root.getPath() + " (" + root.getSize() + ")" );
-        int total = root.getSize();
-        int sum = 0;
-        if (total < 100_000) {
-            sum = total;
-        }
+    static private int findSmallest(Directory root, int min) {
+        int smallestSub = Integer.MAX_VALUE;
         for (Directory d : root.getChildren()) {
             if (d.isDir()) {
-                sum += addToTotal(d);
+                smallestSub = Math.min(smallestSub, findSmallest(d, min));
             }
         }
-
-        return sum;
+        if (min <= root.getSize()) {
+            return Math.min(root.getSize(), smallestSub);
+        }
+        return smallestSub;
     }
+
+//    static private int addToTotal(Directory root) {
+//        //System.out.println("location: " + root.getPath() + " (" + root.getSize() + ")" );
+//        int total = root.getSize();
+//        int sum = 0;
+//        if (total < 100_000) {
+//            sum = total;
+//        }
+//        for (Directory d : root.getChildren()) {
+//            if (d.isDir()) {
+//                sum += addToTotal(d);
+//            }
+//        }
+//
+//        return sum;
+//    }
 
     private static int processDirectoryContents(String line) {
         Matcher matcher = pattern.matcher(line);
