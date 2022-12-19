@@ -47,7 +47,7 @@ public class Day12 {
                 if (pos == null) {
                     continue;
                 }
-                if (heights.get(pos.get(0)).get(pos.get(1)) == START) {
+                if (heights.get(pos.get(0)).get(pos.get(1)) == START || heights.get(pos.get(0)).get(pos.get(1)) == 0) {
                     return level;
                 }
                 if (visited.contains(pos)) {
