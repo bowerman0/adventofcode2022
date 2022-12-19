@@ -5,13 +5,28 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class day11 {
+
+    public static final int TOTAL_ROUNDS = 10_000;
+
     enum Operation {
         MULTIPLY,
         ADD,
         SQUARE
     }
+
+    private static final int[] TESTS = new int[] {2, 3, 5, 7, 11, 13, 17, 19};
+    static class Worry {
+        int[] worryRings = new int[20];
+
+        @Override
+        public String toString() {
+            return "Worry{" +
+                    "worryRings=" + Arrays.toString(worryRings) +
+                    '}';
+        }
+    }
     static class Monkey {
-        Deque<Integer> items;
+        Deque<Worry> items;
         Operation operation;
         int operationAmount;
         int test;
@@ -22,13 +37,13 @@ public class day11 {
         @Override
         public String toString() {
             return "Monkey{" +
-                    "items=" + items +
-                    ", operation=" + operation +
+                    "operation=" + operation +
                     ", operationAmount=" + operationAmount +
                     ", test=" + test +
                     ", trueMonkey=" + trueMonkey +
                     ", falseMonkey=" + falseMonkey +
                     ", count=" + count +
+                    ", items=" + items +
                     '}';
         }
     }
@@ -36,7 +51,7 @@ public class day11 {
         System.out.println("total: " + read());
     }
 
-    private static int read() {
+    private static long read() {
         try (BufferedReader reader =
                      new BufferedReader(new FileReader("input.txt"))) {
             List<Monkey> monkeys = new ArrayList<>();
@@ -46,7 +61,14 @@ public class day11 {
 
                 line = reader.readLine();
                 String[] itemStrings = line.substring(17).split(",");
-                monkey.items = Arrays.stream(itemStrings).map(s -> Integer.parseInt(s.trim())).collect(Collectors.toCollection(ArrayDeque::new));
+                monkey.items = Arrays.stream(itemStrings).map(s -> {
+                    int value = Integer.parseInt(s.trim());
+                    Worry worry = new Worry();
+                    for (int test : TESTS) {
+                        worry.worryRings[test] = value % test;
+                    }
+                    return worry;
+                }).collect(Collectors.toCollection(ArrayDeque::new));
 
                 line = reader.readLine();
                 char op = line.charAt(23);
@@ -76,36 +98,45 @@ public class day11 {
                 line = reader.readLine();
                 monkey.falseMonkey = Integer.parseInt(line.substring(30).trim());
 
-                System.out.println("Monkey:" + monkey);
+                System.out.println(monkey);
                 reader.readLine(); // newline
             }
 
-            for (int round=0; round<20; ++round) {
+            for (int round = 0; round<TOTAL_ROUNDS; ++round) {
                 for (Monkey monkey : monkeys) {
                     while (!monkey.items.isEmpty()) {
-                        Integer worryPointer = monkey.items.pollFirst();
-                        if (worryPointer == null) {
+                        Worry worry = monkey.items.pollFirst();
+                        if (worry == null) {
                             throw new IllegalArgumentException("bad monkey!");
                         }
-                        int worry = worryPointer;
                         ++monkey.count;
+                        if (monkey.count < 0) {
+                            throw new RuntimeException("Worry: " + worry + "Overflow: " + monkey);
+                        }
                         switch (monkey.operation) {
                             case ADD:
-                                worry += monkey.operationAmount;
+                                for (int test : TESTS) {
+                                    worry.worryRings[test] += monkey.operationAmount;
+                                    worry.worryRings[test] %= test;
+                                }
                                 break;
                             case MULTIPLY:
-                                worry *= monkey.operationAmount;
+                                for (int test : TESTS) {
+                                    worry.worryRings[test] *= monkey.operationAmount;
+                                    worry.worryRings[test] %= test;
+                                }
                                 break;
                             case SQUARE:
-                                worry *= worry;
+                                for (int test : TESTS) {
+                                    worry.worryRings[test] *= worry.worryRings[test];
+                                    worry.worryRings[test] %= test;
+                                }
                                 break;
                             default:
                                 throw new IllegalArgumentException("Unexpected operation: " + monkey.operation);
                         }
 
-                        worry /= 3;
-
-                        if (worry % monkey.test == 0) {
+                        if (worry.worryRings[monkey.test] == 0) {
                             monkeys.get(monkey.trueMonkey).items.offerLast(worry);
                         } else {
                             monkeys.get(monkey.falseMonkey).items.offerLast(worry);
@@ -116,10 +147,11 @@ public class day11 {
 
             monkeys.sort(Comparator.comparingInt(a -> a.count));
             for (Monkey monkey : monkeys) {
+                System.out.println(monkey);
                 System.out.println("count: " + monkey.count);
             }
 
-            return monkeys.get(monkeys.size()-2).count * monkeys.get(monkeys.size()-1).count;
+            return ((long)monkeys.get(monkeys.size()-2).count) * monkeys.get(monkeys.size()-1).count;
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
