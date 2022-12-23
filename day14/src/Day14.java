@@ -1,6 +1,7 @@
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Arrays;
 
 public class Day14 {
     public static void main(String[] args) {
@@ -29,13 +30,16 @@ public class Day14 {
                 }
             }
 
-            System.out.println("X: " + minX + "," + maxX);
-            System.out.println("Y: " + minY + "," + maxY);
+            System.out.println("X      : " + minX + "," + maxX);
+            System.out.println("Y      : " + minY + "," + maxY);
+            minX -= maxY;
+            maxX -= maxY;
+            System.out.println("X (adj): " + minX + "," + maxX);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
 
-        int[][] grid = new int[maxY+1][maxX-minX+1];
+        int[][] grid = new int[maxY+2+1][maxX-minX+(2*maxY)+1];
         try (BufferedReader reader =
                      new BufferedReader(new FileReader("input.txt"))) {
             for (String line = reader.readLine(); line != null; line = reader.readLine()) {
@@ -72,6 +76,8 @@ public class Day14 {
                 }
             }
 
+            Arrays.fill(grid[grid.length-1], -1);
+
 //            for (int[] row : grid) {
 //                System.out.println(Arrays.toString(row));
 //            }
@@ -91,14 +97,15 @@ public class Day14 {
     }
 
     private static int computeStacks(int[][] grid, int minX) {
-        for (int count=1; count<10_000; ++count) {
+        int count=1;
+        for ( ; grid[0][500-minX] != -1 && count<100_000; ++count) {
 //            System.out.println("count: " + count);
             for (int x=500-minX, y=0; grid[y][x] != -1; ) {
 //                System.out.println("x,y: " + x + "," + y);
                 if (grid.length <= y+1) {
                     return count-1;
                 } else if (grid[y+1][x] == -1 && (x-1 < 0 || grid[y].length <= x+1)) {
-                    return count-1;
+                    grid[y][x] = -1;
                 } else if (grid[y+1][x] != -1) {
                     ++y;
                 } else if (grid[y+1][x-1] != -1) {
@@ -116,6 +123,13 @@ public class Day14 {
 //                }
             }
         }
-        throw new IllegalArgumentException("too many iterations!");
+        if (grid[0][500-minX] != -1) {
+            throw new IllegalArgumentException("too many iterations!");
+        } else {
+//                for (int[] row : grid) {
+//                    System.out.println(Arrays.toString(row));
+//                }
+            return count-1;
+        }
     }
 }
